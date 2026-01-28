@@ -2,8 +2,8 @@
  * Utility functions for formatting currency, dates, etc.
  */
 
-export const formatCurrency = (amount: number, currency: string = '₹'): string => {
-  return `${currency}${amount.toLocaleString('en-IN')}`;
+export const formatCurrency = (amount: number, currency: string = '$'): string => {
+  return `${currency}${amount.toLocaleString('en-US')}`;
 };
 
 export const formatDate = (dateString: string | Date, format: 'short' | 'long' = 'short'): string => {

@@ -1,18 +1,20 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect, useRef } from 'react';
 import {
   View,
   ScrollView,
   StyleSheet,
   RefreshControl,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import theme from '../theme';
-import { Card, Text, EmptyState } from '../components';
+import { AnimatedCard, Text, EmptyState, GradientBackground } from '../components';
 import { Expense } from '../types';
 import { formatCurrency, formatDate, formatMonthYear } from '../utils/formatting';
 
 const ExpenseListScreen: React.FC = () => {
   const [refreshing, setRefreshing] = useState(false);
+  const headerAnim = useRef(new Animated.Value(0)).current;
   
   // Mock data - replace with actual state management
   const [expenses] = useState<Expense[]>([
@@ -56,6 +58,14 @@ const ExpenseListScreen: React.FC = () => {
     return { totalIncome, totalExpense, balance };
   }, [expenses]);
 
+  useEffect(() => {
+    Animated.timing(headerAnim, {
+      toValue: 1,
+      duration: 600,
+      useNativeDriver: true,
+    }).start();
+  }, [headerAnim]);
+
   const onRefresh = () => {
     setRefreshing(true);
     // Simulate refresh
@@ -63,105 +73,134 @@ const ExpenseListScreen: React.FC = () => {
   };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <ScrollView
-        style={styles.scrollView}
-        contentContainerStyle={styles.content}
-        refreshControl={
-          <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
-        }
-      >
-        {/* Header */}
-        <View style={styles.header}>
-          <Text variant="heading">{currentMonth}</Text>
-        </View>
+    <GradientBackground>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <ScrollView
+          style={styles.scrollView}
+          contentContainerStyle={styles.content}
+          refreshControl={
+            <RefreshControl refreshing={refreshing} onRefresh={onRefresh} />
+          }
+        >
+          {/* Header */}
+          <Animated.View
+            style={[
+              styles.header,
+              {
+                opacity: headerAnim,
+                transform: [
+                  {
+                    translateY: headerAnim.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: [-20, 0],
+                    }),
+                  },
+                ],
+              },
+            ]}
+          >
+            <Text variant="heading">{currentMonth}</Text>
+          </Animated.View>
 
-        {/* Summary Cards */}
-        <View style={styles.summaryContainer}>
-          <Card style={styles.summaryCard}>
-            <Text variant="caption" style={styles.summaryLabel}>
-              Total Income
-            </Text>
-            <Text variant="subheading" style={styles.incomeText}>
-              {formatCurrency(summary.totalIncome)}
-            </Text>
-          </Card>
+          {/* Summary Cards */}
+          <View style={styles.summaryContainer}>
+            <AnimatedCard style={styles.summaryCard} delay={100}>
+              <Text variant="caption" style={styles.summaryLabel}>
+                Total Income
+              </Text>
+              <Text variant="subheading" style={styles.incomeText}>
+                {formatCurrency(summary.totalIncome)}
+              </Text>
+            </AnimatedCard>
 
-          <Card style={styles.summaryCard}>
-            <Text variant="caption" style={styles.summaryLabel}>
-              Total Expense
-            </Text>
-            <Text variant="subheading" style={styles.expenseText}>
-              {formatCurrency(summary.totalExpense)}
-            </Text>
-          </Card>
+            <AnimatedCard style={styles.summaryCard} delay={200}>
+              <Text variant="caption" style={styles.summaryLabel}>
+                Total Expense
+              </Text>
+              <Text variant="subheading" style={styles.expenseText}>
+                {formatCurrency(summary.totalExpense)}
+              </Text>
+            </AnimatedCard>
 
-          <Card style={[styles.summaryCard, styles.balanceCard]}>
-            <Text variant="caption" style={styles.summaryLabel}>
-              Balance
-            </Text>
-            <Text
-              variant="subheading"
-              style={[
-                styles.balanceText,
-                summary.balance >= 0 ? styles.incomeText : styles.expenseText,
-              ]}
-            >
-              {formatCurrency(summary.balance)}
-            </Text>
-          </Card>
-        </View>
+            <AnimatedCard style={[styles.summaryCard, styles.balanceCard]} delay={300}>
+              <Text variant="caption" style={styles.summaryLabel}>
+                Balance
+              </Text>
+              <Text
+                variant="subheading"
+                style={[
+                  styles.balanceText,
+                  summary.balance >= 0 ? styles.incomeText : styles.expenseText,
+                ]}
+              >
+                {formatCurrency(summary.balance)}
+              </Text>
+            </AnimatedCard>
+          </View>
 
-        {/* Transactions List */}
-        <View style={styles.transactionsHeader}>
-          <Text variant="subheading">Recent Transactions</Text>
-        </View>
+          {/* Transactions List */}
+          <Animated.View
+            style={[
+              styles.transactionsHeader,
+              {
+                opacity: headerAnim,
+              },
+            ]}
+          >
+            <Text variant="subheading">Recent Transactions</Text>
+          </Animated.View>
 
-        {expenses.length === 0 ? (
-          <EmptyState
-            title="No transactions yet"
-            message="Add your first transaction to get started"
-          />
-        ) : (
-          expenses.map((expense) => (
-            <Card key={expense.id} style={styles.transactionCard}>
-              <View style={styles.transactionContent}>
-                <View style={styles.transactionLeft}>
-                  <Text variant="bodyBold">{expense.category}</Text>
-                  {expense.note && (
-                    <Text variant="caption" style={styles.transactionNote}>
-                      {expense.note}
+          {expenses.length === 0 ? (
+            <AnimatedCard delay={400}>
+              <EmptyState
+                title="No transactions yet"
+                message="Add your first transaction to get started"
+              />
+            </AnimatedCard>
+          ) : (
+            expenses.map((expense, index) => (
+              <AnimatedCard
+                key={expense.id}
+                style={styles.transactionCard}
+                delay={400 + index * 100}
+              >
+                <View style={styles.transactionContent}>
+                  <View style={styles.transactionLeft}>
+                    <Text variant="bodyBold">{expense.category}</Text>
+                    {expense.note && (
+                      <Text variant="caption" style={styles.transactionNote}>
+                        {expense.note}
+                      </Text>
+                    )}
+                    <Text variant="small" style={styles.transactionDate}>
+                      {formatDate(expense.date)}
                     </Text>
-                  )}
-                  <Text variant="small" style={styles.transactionDate}>
-                    {formatDate(expense.date)}
+                  </View>
+                  <Text
+                    variant="subheading"
+                    style={[
+                      styles.transactionAmount,
+                      expense.type === 'income'
+                        ? styles.incomeText
+                        : styles.expenseText,
+                    ]}
+                  >
+                    {expense.type === 'income' ? '+' : '-'}
+                    {formatCurrency(expense.amount)}
                   </Text>
                 </View>
-                <Text
-                  variant="subheading"
-                  style={[
-                    styles.transactionAmount,
-                    expense.type === 'income'
-                      ? styles.incomeText
-                      : styles.expenseText,
-                  ]}
-                >
-                  {expense.type === 'income' ? '+' : '-'}
-                  {formatCurrency(expense.amount)}
-                </Text>
-              </View>
-            </Card>
-          ))
-        )}
-      </ScrollView>
-    </SafeAreaView>
+              </AnimatedCard>
+            ))
+          )}
+        </ScrollView>
+      </SafeAreaView>
+    </GradientBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
   },
   scrollView: {
     flex: 1,

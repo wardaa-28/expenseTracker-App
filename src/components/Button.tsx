@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useRef } from 'react';
 import {
   TouchableOpacity,
   Text,
@@ -6,6 +6,7 @@ import {
   StyleSheet,
   ViewStyle,
   TextStyle,
+  Animated,
 } from 'react-native';
 import theme from '../theme';
 
@@ -30,6 +31,43 @@ const Button: React.FC<ButtonProps> = ({
   style,
   textStyle,
 }) => {
+  const scaleAnim = useRef(new Animated.Value(1)).current;
+
+  const handlePressIn = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 0.95,
+      useNativeDriver: true,
+      tension: 300,
+      friction: 10,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(scaleAnim, {
+      toValue: 1,
+      useNativeDriver: true,
+      tension: 300,
+      friction: 10,
+    }).start();
+  };
+
+  const handlePress = () => {
+    Animated.sequence([
+      Animated.timing(scaleAnim, {
+        toValue: 0.95,
+        duration: 100,
+        useNativeDriver: true,
+      }),
+      Animated.spring(scaleAnim, {
+        toValue: 1,
+        useNativeDriver: true,
+        tension: 300,
+        friction: 10,
+      }),
+    ]).start();
+    onPress();
+  };
+
   const getButtonStyle = (): ViewStyle => {
     const baseStyle: ViewStyle = {
       ...styles.button,
@@ -56,18 +94,22 @@ const Button: React.FC<ButtonProps> = ({
   };
 
   return (
-    <TouchableOpacity
-      style={[getButtonStyle(), style]}
-      onPress={onPress}
-      disabled={disabled || loading}
-      activeOpacity={0.8}
-    >
-      {loading ? (
-        <ActivityIndicator color={theme.colors.textInverse} />
-      ) : (
-        <Text style={[getTextStyle(), textStyle]}>{title}</Text>
-      )}
-    </TouchableOpacity>
+    <Animated.View style={{ transform: [{ scale: scaleAnim }] }}>
+      <TouchableOpacity
+        style={[getButtonStyle(), style]}
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
+        disabled={disabled || loading}
+        activeOpacity={1}
+      >
+        {loading ? (
+          <ActivityIndicator color={theme.colors.textInverse} />
+        ) : (
+          <Text style={[getTextStyle(), textStyle]}>{title}</Text>
+        )}
+      </TouchableOpacity>
+    </Animated.View>
   );
 };
 

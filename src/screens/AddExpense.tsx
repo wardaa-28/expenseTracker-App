@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import {
   View,
   ScrollView,
@@ -6,11 +6,12 @@ import {
   TouchableOpacity,
   KeyboardAvoidingView,
   Platform,
+  Animated,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import DateTimePicker from '@react-native-community/datetimepicker';
 import theme from '../theme';
-import { Input, Button, Card, Text } from '../components';
+import { Input, Button, AnimatedCard, Text, GradientBackground } from '../components';
 import { TransactionType } from '../types';
 import { formatDate } from '../utils/formatting';
 
@@ -23,6 +24,7 @@ const AddExpenseScreen: React.FC = () => {
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [loading, setLoading] = useState(false);
+  const fadeAnim = useRef(new Animated.Value(0)).current;
 
   const categories = [
     'Food',
@@ -53,6 +55,14 @@ const AddExpenseScreen: React.FC = () => {
     return Object.keys(newErrors).length === 0;
   };
 
+  useEffect(() => {
+    Animated.timing(fadeAnim, {
+      toValue: 1,
+      duration: 500,
+      useNativeDriver: true,
+    }).start();
+  }, [fadeAnim]);
+
   const handleSubmit = () => {
     if (!validate()) return;
 
@@ -69,27 +79,43 @@ const AddExpenseScreen: React.FC = () => {
     }, 1000);
   };
 
+  const handleTypeChange = (newType: TransactionType) => {
+    Animated.sequence([
+      Animated.timing(fadeAnim, {
+        toValue: 0.7,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+      Animated.timing(fadeAnim, {
+        toValue: 1,
+        duration: 150,
+        useNativeDriver: true,
+      }),
+    ]).start();
+    setType(newType);
+  };
 
   return (
-    <SafeAreaView style={styles.container} edges={['top']}>
-      <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        style={styles.keyboardView}
-      >
-        <ScrollView
-          style={styles.scrollView}
-          contentContainerStyle={styles.content}
-          keyboardShouldPersistTaps="handled"
+    <GradientBackground>
+      <SafeAreaView style={styles.container} edges={['top']}>
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
+          style={styles.keyboardView}
         >
-          {/* Type Toggle */}
-          <Card style={styles.typeCard}>
+          <ScrollView
+            style={styles.scrollView}
+            contentContainerStyle={styles.content}
+            keyboardShouldPersistTaps="handled"
+          >
+            {/* Type Toggle */}
+            <AnimatedCard style={styles.typeCard} delay={100}>
             <View style={styles.typeToggle}>
               <TouchableOpacity
                 style={[
                   styles.typeButton,
                   type === 'expense' && styles.typeButtonActive,
                 ]}
-                onPress={() => setType('expense')}
+                onPress={() => handleTypeChange('expense')}
               >
                 <Text
                   variant="bodyBold"
@@ -106,7 +132,7 @@ const AddExpenseScreen: React.FC = () => {
                   styles.typeButton,
                   type === 'income' && styles.typeButtonActive,
                 ]}
-                onPress={() => setType('income')}
+                onPress={() => handleTypeChange('income')}
               >
                 <Text
                   variant="bodyBold"
@@ -119,20 +145,22 @@ const AddExpenseScreen: React.FC = () => {
                 </Text>
               </TouchableOpacity>
             </View>
-          </Card>
+            </AnimatedCard>
 
-          {/* Amount Input */}
-          <Input
+            {/* Amount Input */}
+            <Animated.View style={{ opacity: fadeAnim }}>
+              <Input
             label="Amount"
             placeholder="0.00"
             value={amount}
             onChangeText={setAmount}
-            keyboardType="decimal-pad"
-            error={errors.amount}
-          />
+                keyboardType="decimal-pad"
+                error={errors.amount}
+              />
+            </Animated.View>
 
-          {/* Category Dropdown */}
-          <View style={styles.categoryContainer}>
+            {/* Category Dropdown */}
+            <AnimatedCard style={styles.categoryContainer} delay={200}>
             <Text variant="captionBold" style={styles.categoryLabel}>
               Category
             </Text>
@@ -163,15 +191,16 @@ const AddExpenseScreen: React.FC = () => {
                 </TouchableOpacity>
               ))}
             </ScrollView>
-            {errors.category && (
-              <Text variant="small" style={styles.errorText}>
-                {errors.category}
-              </Text>
-            )}
-          </View>
+              {errors.category && (
+                <Text variant="small" style={styles.errorText}>
+                  {errors.category}
+                </Text>
+              )}
+            </AnimatedCard>
 
-          {/* Date Picker */}
-          <TouchableOpacity
+            {/* Date Picker */}
+            <AnimatedCard delay={300}>
+              <TouchableOpacity
             style={styles.dateButton}
             onPress={() => setShowDatePicker(true)}
           >
@@ -179,55 +208,74 @@ const AddExpenseScreen: React.FC = () => {
               <Text variant="captionBold" style={styles.dateLabel}>
                 Date
               </Text>
-              <Text variant="body" style={styles.dateText}>
-                {formatDate(date, 'long')}
-              </Text>
-            </View>
-          </TouchableOpacity>
+                <Text variant="body" style={styles.dateText}>
+                  {formatDate(date, 'long')}
+                </Text>
+              </View>
+              </TouchableOpacity>
 
-          {showDatePicker && (
-            <DateTimePicker
-              value={date}
-              mode="date"
-              display="default"
-              onChange={(event, selectedDate) => {
-                setShowDatePicker(false);
-                if (selectedDate) {
-                  setDate(selectedDate);
-                }
-              }}
-            />
-          )}
+              {showDatePicker && (
+                <DateTimePicker
+                  value={date}
+                  mode="date"
+                  display="default"
+                  onChange={(event, selectedDate) => {
+                    setShowDatePicker(false);
+                    if (selectedDate) {
+                      setDate(selectedDate);
+                    }
+                  }}
+                />
+              )}
+            </AnimatedCard>
 
-          {/* Note Input */}
-          <Input
-            label="Note (Optional)"
-            placeholder="Add a note..."
-            value={note}
-            onChangeText={setNote}
-            multiline
-            numberOfLines={3}
-            textAlignVertical="top"
-          />
+            {/* Note Input */}
+            <Animated.View style={{ opacity: fadeAnim }}>
+              <Input
+                label="Note (Optional)"
+                placeholder="Add a note..."
+                value={note}
+                onChangeText={setNote}
+                multiline
+                numberOfLines={3}
+                textAlignVertical="top"
+              />
+            </Animated.View>
 
-          {/* Submit Button */}
-          <Button
-            title={type === 'income' ? 'Add Income' : 'Add Expense'}
-            onPress={handleSubmit}
-            variant={type === 'income' ? 'secondary' : 'primary'}
-            loading={loading}
-            style={styles.submitButton}
-          />
-        </ScrollView>
-      </KeyboardAvoidingView>
-    </SafeAreaView>
+            {/* Submit Button */}
+            <Animated.View
+              style={[
+                styles.submitButton,
+                {
+                  opacity: fadeAnim,
+                  transform: [
+                    {
+                      scale: fadeAnim.interpolate({
+                        inputRange: [0, 1],
+                        outputRange: [0.95, 1],
+                      }),
+                    },
+                  ],
+                },
+              ]}
+            >
+              <Button
+                title={type === 'income' ? 'Add Income' : 'Add Expense'}
+                onPress={handleSubmit}
+                variant={type === 'income' ? 'secondary' : 'primary'}
+                loading={loading}
+              />
+            </Animated.View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    </GradientBackground>
   );
 };
 
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: theme.colors.background,
   },
   keyboardView: {
     flex: 1,

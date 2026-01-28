@@ -1,43 +1,43 @@
 /**
  * Professional Theme System for Finance/Expense Tracker App
- * Modern fintech color palette (blue + green based)
+ * Color palette based on #8FB6CF (soft blue theme)
  */
 
 export const colors = {
-  // Primary colors - Blue based (trust, stability)
-  primary: '#2563EB', // Modern blue
-  primaryLight: '#3B82F6',
-  primaryDark: '#1E40AF',
+  // Primary colors - Shades of #8FB6CF
+  primary: '#8FB6CF', // Base color
+  primaryLight: '#B4D1E5', // Lighter shade
+  primaryDark: '#6A9AB8', // Darker shade
   
-  // Secondary colors - Green based (growth, success)
-  secondary: '#10B981', // Emerald green
-  secondaryLight: '#34D399',
-  secondaryDark: '#059669',
+  // Secondary colors - Complementary teal/cyan
+  secondary: '#7BC4C4', // Teal that complements blue
+  secondaryLight: '#9DD9D9',
+  secondaryDark: '#5BA3A3',
   
-  // Status colors
-  success: '#10B981',
-  danger: '#EF4444',
-  warning: '#F59E0B',
-  info: '#3B82F6',
+  // Status colors - Harmonized with blue theme
+  success: '#7BC4C4', // Teal for success
+  danger: '#E88B8B', // Soft coral/salmon
+  warning: '#E8B88B', // Warm peach
+  info: '#8FB6CF', // Base blue for info
   
-  // Background colors
-  background: '#F9FAFB',
-  backgroundSecondary: '#FFFFFF',
-  card: '#FFFFFF',
+  // Background colors - Very light tints of #8FB6CF
+  background: '#F7FAFC', // Very light blue tint
+  backgroundSecondary: '#FFFFFF', // Pure white
+  card: '#FFFFFF', // White cards
   
-  // Text colors
-  textPrimary: '#111827',
-  textSecondary: '#6B7280',
-  textTertiary: '#9CA3AF',
-  textInverse: '#FFFFFF',
+  // Text colors - Dark for contrast
+  textPrimary: '#2C3E50', // Dark blue-gray
+  textSecondary: '#5A6C7D', // Medium blue-gray
+  textTertiary: '#8B9BA8', // Light blue-gray
+  textInverse: '#FFFFFF', // White text
   
-  // Border colors
-  border: '#E5E7EB',
-  borderLight: '#F3F4F6',
+  // Border colors - Light blue-gray tints
+  border: '#D9E8F2', // Light blue border
+  borderLight: '#F0F6FA', // Very light blue border
   
   // Income/Expense specific
-  income: '#10B981',
-  expense: '#EF4444',
+  income: '#7BC4C4', // Teal for income
+  expense: '#E88B8B', // Soft coral for expense
 } as const;
 
 export const spacing = {
@@ -104,23 +104,23 @@ export const borderRadius = {
 
 export const shadows = {
   sm: {
-    shadowColor: '#000',
+    shadowColor: '#8FB6CF', // Theme-based shadow
     shadowOffset: { width: 0, height: 1 },
-    shadowOpacity: 0.05,
+    shadowOpacity: 0.08,
     shadowRadius: 2,
     elevation: 2,
   },
   md: {
-    shadowColor: '#000',
+    shadowColor: '#6A9AB8', // Darker theme shadow
     shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
+    shadowOpacity: 0.12,
     shadowRadius: 4,
     elevation: 4,
   },
   lg: {
-    shadowColor: '#000',
+    shadowColor: '#6A9AB8', // Darker theme shadow
     shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.15,
+    shadowOpacity: 0.18,
     shadowRadius: 8,
     elevation: 8,
   },

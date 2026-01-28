@@ -14,6 +14,7 @@ const AppNavigator: React.FC = () => {
     <NavigationContainer>
       <Tab.Navigator
         screenOptions={{
+          headerShown:false,
           headerStyle: {
             backgroundColor: theme.colors.backgroundSecondary,
             elevation: 0,

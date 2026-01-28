@@ -1,5 +1,6 @@
 import React from 'react';
-import { View, StyleSheet, Text } from 'react-native';
+import { View, StyleSheet } from 'react-native';
+import Icon from 'react-native-vector-icons/AntDesign';
 
 interface TabIconProps {
   name: string;
@@ -8,24 +9,22 @@ interface TabIconProps {
 }
 
 const TabIcon: React.FC<TabIconProps> = ({ name, color, size }) => {
-  const getIcon = () => {
+  const getIconName = () => {
     switch (name) {
       case 'list':
-        return '📋';
+        return 'bars';
       case 'add':
-        return '➕';
+        return 'plus';
       case 'chart':
-        return '📊';
+        return 'barschart';
       default:
-        return '•';
+        return 'question';
     }
   };
 
   return (
     <View style={styles.container}>
-      <Text style={[styles.icon, { fontSize: size, color }]}>
-        {getIcon()}
-      </Text>
+      <Icon name={getIconName()} size={size} color={color} />
     </View>
   );
 };
@@ -34,9 +33,6 @@ const styles = StyleSheet.create({
   container: {
     alignItems: 'center',
     justifyContent: 'center',
-  },
-  icon: {
-    textAlign: 'center',
   },
 });
 
